@@ -1,0 +1,34 @@
+<template>
+  <div class="container">
+    <section class="au-animate">
+      <div class="col">
+        <h2>${heading}</h2>
+        <form role="form" submit.delegate="activate()">
+          <div class="form-group">
+            <label for="fn">GitHub Username</label>
+            <!-- <input type="text" class="form-control" id="fn" placeholder="username">  -->
+            <input type="text" value.bind="userSearch" class="form-control" id="fn" placeholder="username">
+          </div>
+          <div class="form-group">
+            <!-- <label>Full Name</label> -->
+            <!-- <p class="help-block">${userSearch}</p>  -->
+          </div>
+          <button type="submit" class="btn btn-default btn-margin">Submit</button>
+        </form>
+      </div>
+      <div class="row margin-top" show.delegate="activate()">
+        <div class="col-md-3">
+          <p><img class="img-responsive" src="${user.avatar_url}"></p>
+        </div>
+        <div class="col-md-9">
+          <h3 class="name">${user.login}</h3>
+          <p>${user.followers} followers</p>
+          <!-- <p if.bind="">${user.organizations}</p> -->
+          <p><a href="${user.html_url}">View Profile</a></p>
+          <button click.delegate="fetchOrgs()">Get organizations</button>
+          <p if.bind="data">${data.length}</p>
+        </div>
+      </div>
+    </section>
+  </div>
+</template>
