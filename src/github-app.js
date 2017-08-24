@@ -1,62 +1,70 @@
-//straight copy of users.js
-
-import {inject} from 'aurelia-framework';
-import {HttpClient} from 'aurelia-fetch-client';
-import 'fetch';
-
-@inject(HttpClient)
 export class GithubApp {
-
-  constructor(http) {
-    http.configure(config => {
-      config
-        .useStandardConfiguration()
-        .withBaseUrl('https://api.github.com/');
-    });
-
-    this.http = http;
+  constructor() { // Some API Usage info on load
+    fetch("https://api.github.com/rate_limit")
+      .then(response => response.json())
+      .then(data => {
+        console.log(`Remaining API calls - ${data.rate.remaining}`);
+        console.log(`Reset - ${new Date(data.rate.reset*1000).toLocaleTimeString()}`);
+      });
   }
 
   heading = 'Search Github User';
-  users = [];
-  userSearch = 'scraggo';
+  userSearch = "defunkt"; // can change to null or undefined to start blank
 
-// //added
-  submit() {
-    // this.userName = this.user;
-    alert(`Do stuff, ${this.userSearch}!`);
-  }
-
-  parseUserData(users) {
-    console.log(users);
-    users.forEach(function(user) {
-      // return this.http.fetch(`${user.login}/followers`)
-      // .then(response => response.json())
-      // .then(followers => this.followers.length);
-
-      user.site_admin = false;
-    });
+  activate() {
+    if (!this.userSearch) return;
+    fetch(`https://api.github.com/users/${this.userSearch}`)
+      .then(response => response.json())
+      .then(user => { 
+        this.user = user;
+        this.fetchOrgs();
+      })
+      .catch(error => { this.user = null; this.displayErrors(error) });
   }
 
   fetchOrgs() {
-    // this.user = user;
-    // console.dir(user);
-    // console.log(`users/${user.login}/orgs`);
-    // console.log(this.userSearch);
-    // return this.http.fetch(`users/${user.login}/orgs`)
-    return this.http.fetch(`users/${this.userSearch}/orgs`)
-    .then(response => response.json())
-    // .then(data => data.length)
-    .then(data => this.data = data);
+    fetch(`https://api.github.com/users/${this.userSearch}/orgs`)
+      .then(response => response.json())
+      .then(orgData => this.user.orgData = orgData)
+      .catch(error => { this.user = null; this.displayErrors(error) });
   }
 
-  activate() {
-    return this.http.fetch(`users/${this.userSearch}`)
-    // return this.http.fetch('users/brianyu28/orgs')
-      .then(response => response.json())
-      .then(user => this.user = user);
-      // .then(user => this.fetchOrgs(user));
-      // .then(data => console.log(data.length));
+  displayErrors(error) {
+    if (error.status === 403) {
+      console.log("Forbidden - probably rate limited"); return;
+    }
+    if (error.status === 404) {
+      console.log("Profile Not Found"); return;
+    }
+    console.log("Error - ", error);
   }
 
 }
+
+
+
+
+//STUFF I REMOVED TO MAKE SMALL VERSION
+// import {inject} from 'aurelia-framework';
+// import {HttpClient} from 'aurelia-fetch-client';
+// import 'fetch';
+
+// @inject(HttpClient)
+// export class GithubApp {
+//   constructor(http) {
+//     http.configure(config => {
+//       config
+//         .useStandardConfiguration()
+//         .withBaseUrl('https://api.github.com/');
+//     });
+
+//     this.http = http;
+//   }
+//   parseUserData(users) {
+//     users.forEach(function(user) {
+//       // return this.http.fetch(`${user.login}/followers`)
+//       // .then(response => response.json())
+//       // .then(followers => this.followers.length);
+//       user.site_admin = false;
+//     });
+//   }
