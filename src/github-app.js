@@ -1,13 +1,4 @@
 export class GithubApp {
-  constructor() { // Some API Usage info on load
-    fetch("https://api.github.com/rate_limit")
-      .then(response => response.json())
-      .then(data => {
-        console.log(`Remaining API calls - ${data.rate.remaining}`);
-        console.log(`Reset - ${new Date(data.rate.reset*1000).toLocaleTimeString()}`);
-      });
-  }
-
   heading = 'Search Github User';
   userSearch = "defunkt"; // can change to null or undefined to start blank
 
@@ -27,6 +18,17 @@ export class GithubApp {
       .then(response => response.json())
       .then(orgData => this.user.orgData = orgData)
       .catch(error => { this.user = null; this.displayErrors(error) });
+
+    this.apiUsage(); // Keep us updated.
+  }
+
+  apiUsage() { // Github rate limits to 60/hour
+    fetch("https://api.github.com/rate_limit")
+      .then(response => response.json())
+      .then(data => {
+        console.log(`Remaining API calls - ${data.rate.remaining}`);
+        console.log(`Reset - ${new Date(data.rate.reset*1000).toLocaleTimeString()}`);
+      });
   }
 
   displayErrors(error) {
