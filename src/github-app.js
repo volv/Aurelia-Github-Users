@@ -22,7 +22,7 @@ export class GithubApp {
     this.apiUsage(); // Keep us updated.
   }
 
-  apiUsage() { // Github rate limits to 60/hour
+  apiUsage() { // Github rate limits to 60/hour. rate_limit call shouldn't count.
     fetch("https://api.github.com/rate_limit")
       .then(response => response.json())
       .then(data => {
