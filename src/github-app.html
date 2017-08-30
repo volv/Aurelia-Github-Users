@@ -1,4 +1,5 @@
 <template>
+  <require from="./limit-to"></require>
   <div class="container">
     <section class="au-animate">
       <div class="col">
@@ -23,6 +24,12 @@
           <ul>
             <li repeat.for="i of user.orgData.length"><a href="${user.orgData[i].url}">${user.orgData[i].login}</a></li>
           </ul>
+          <p if.bind="user.repoData">Repos: ${user.repoData.length}</p>
+          <ul>
+              <!-- <div repeat.for="item of items | limitTo:5">${i}</div> -->
+            <li repeat.for="i of user.repoData | limitTo:5"><a href="${user.repoData[i].html_url}">${user.repoData[i].name}</a> - ${user.repoData[i].language}</li>
+          </ul>
+
         </div>
       </div>
     </section>

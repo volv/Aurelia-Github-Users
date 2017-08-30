@@ -9,6 +9,7 @@ export class GithubApp {
       .then(user => { 
         this.user = user;
         this.fetchOrgs();
+        this.fetchRepos();
       })
       .catch(error => { this.user = null; this.displayErrors(error) });
   }
@@ -20,6 +21,15 @@ export class GithubApp {
       .catch(error => { this.user = null; this.displayErrors(error) });
 
     this.apiUsage(); // Keep us updated.
+  }
+
+  fetchRepos() {
+    fetch(`https://api.github.com/users/${this.userSearch}/repos`)
+    .then(response => response.json())
+    .then(repoData => this.user.repoData = repoData)
+    .catch(error => { this.user = null; this.displayErrors(error) });
+
+  this.apiUsage(); // Keep us updated.
   }
 
   apiUsage() { // Github rate limits to 60/hour
