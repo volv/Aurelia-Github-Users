@@ -8,6 +8,7 @@ export class GithubApp {
       .then(response => response.json())
       .then(user => { 
         this.user = user;
+        console.dir(user);
         this.fetchOrgs();
       })
       .catch(error => { this.user = null; this.displayErrors(error) });
@@ -16,7 +17,19 @@ export class GithubApp {
   fetchOrgs() {
     fetch(`https://api.github.com/users/${this.userSearch}/orgs`)
       .then(response => response.json())
-      .then(orgData => this.user.orgData = orgData)
+      .then(orgData => {
+        this.user.orgData = orgData;
+        this.fetchRepo();
+      })
+      .catch(error => { this.user = null; this.displayErrors(error) });
+
+    //this.apiUsage(); // Keep us updated.
+  }
+
+  fetchRepo() {
+    fetch(`https://api.github.com/users/${this.userSearch}/repos`)
+      .then(response => response.json())
+      .then(repoData => { this.user.repoData = repoData; console.dir(this.user.repoData) } )
       .catch(error => { this.user = null; this.displayErrors(error) });
 
     this.apiUsage(); // Keep us updated.
@@ -42,6 +55,17 @@ export class GithubApp {
   }
 
 }
+
+
+
+
+
+
+// ```<p if.bind="user.repoData">Repos: ${user.repoData.length}</p>
+//           <ul>
+//               <!-- <div repeat.for="item of items | limitTo:5">${i}</div> -->
+//             <li repeat.for="i of user.repoData | limitTo:5"><a href="${user.repoData[i].html_url}">${user.repoData[i].name}</a> - ${user.repoData[i].language}</li>
+//           </ul>```
 
 
 

@@ -23,6 +23,14 @@
           <ul>
             <li repeat.for="i of user.orgData.length"><a href="${user.orgData[i].url}">${user.orgData[i].login}</a></li>
           </ul>
+
+          <p if.bind="user.repoData">Repos: ${user.repoData.length}</p>
+          <ul>
+            <!-- <div repeat.for="item of items | limitTo:5">${i}</div> -->
+            <require from="./limit-to"></require>
+            <li repeat.for="items of user.repoData | limitTo:5"><a href="${items.html_url}">${items.name}</a> - ${items.language}</li>
+          </ul>
+
         </div>
       </div>
     </section>
