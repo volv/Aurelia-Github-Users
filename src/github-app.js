@@ -4,36 +4,44 @@ export class GithubApp {
 
   activate() {
     if (!this.userSearch) return;
-    fetch(`https://api.github.com/users/${this.userSearch}`)
-      .then(response => response.json())
-      .then(user => { 
-        this.user = user;
-        console.dir(user);
-        this.fetchOrgs();
-      })
-      .catch(error => { this.user = null; this.displayErrors(error) });
+    this.fetchUserInfo()
+      .then(this.fetchUserOrgs.bind(this))
+      .then(this.fetchUserRepos.bind(this))
+      .then(this.apiUsage.bind(this))
+      .catch(this.displayErrors)
   }
 
-  fetchOrgs() {
-    fetch(`https://api.github.com/users/${this.userSearch}/orgs`)
-      .then(response => response.json())
-      .then(orgData => {
-        this.user.orgData = orgData;
-        this.fetchRepo();
-      })
-      .catch(error => { this.user = null; this.displayErrors(error) });
+  fetchUserInfo = () => new Promise((resolve, reject) => {
+      fetch(`https://api.github.com/users/${this.userSearch}`)
+        .then(response => response.json())
+        .then(user => { 
+          this.user = user;
+          resolve();
+        })
+        .catch(error => { this.user = null; reject(error) });
+      });
+  
 
-    //this.apiUsage(); // Keep us updated.
-  }
+  fetchUserOrgs = () => new Promise((resolve, reject) => {
+      fetch(`https://api.github.com/users/${this.userSearch}/orgs`)
+        .then(response => response.json())
+        .then(orgData => {
+          this.user.orgData = orgData;
+          resolve();
+        })
+        .catch(error => { this.user = null; reject(error) });
+      });
+  
 
-  fetchRepo() {
-    fetch(`https://api.github.com/users/${this.userSearch}/repos`)
-      .then(response => response.json())
-      .then(repoData => { this.user.repoData = repoData; console.dir(this.user.repoData) } )
-      .catch(error => { this.user = null; this.displayErrors(error) });
-
-    this.apiUsage(); // Keep us updated.
-  }
+  fetchUserRepos = () => new Promise((resolve, reject) => {
+      fetch(`https://api.github.com/users/${this.userSearch}/repos`)
+        .then(response => response.json())
+        .then(repoData => { 
+          this.user.repoData = repoData;
+          resolve();
+        })
+        .catch(error => { this.user = null; reject(error) });
+      });
 
   apiUsage() { // Github rate limits to 60/hour. rate_limit call shouldn't count.
     fetch("https://api.github.com/rate_limit")
