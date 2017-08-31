@@ -5,65 +5,48 @@ export class GithubApp {
   activate() {
     if (!this.userSearch) return;
     this.fetchUserInfo()
-      .then(this.fetchUserOrgs.bind(this))
-      .then(this.fetchUserRepos.bind(this))
-      .then(this.apiUsage.bind(this))
-      .catch(this.displayErrors)
+      .then(handleErrors)
+      .then((userInfo) => {
+        this.user = userInfo;
+        return this.fetchUserOrgs();
+      })
+      .then((orgData) => {
+        this.user.orgData = orgData;
+        return this.fetchUserRepos();
+      })
+      .then((repoData) => {
+        this.user.repoData = repoData;
+        this.showApiUsage();
+      })
   }
 
-  fetchUserInfo = () => new Promise((resolve, reject) => {
-      fetch(`https://api.github.com/users/${this.userSearch}`)
-        .then(response => response.json())
-        .then(user => { 
-          this.user = user;
-          resolve();
-        })
-        .catch(error => { this.user = null; reject(error) });
-      });
-  
+  fetchUserInfo = (user) => 
+    fetch(`https://api.github.com/users/${this.userSearch}`)
+      .then(response => response.json())
 
-  fetchUserOrgs = () => new Promise((resolve, reject) => {
-      fetch(`https://api.github.com/users/${this.userSearch}/orgs`)
-        .then(response => response.json())
-        .then(orgData => {
-          this.user.orgData = orgData;
-          resolve();
-        })
-        .catch(error => { this.user = null; reject(error) });
-      });
-  
+  fetchUserOrgs = (user) => 
+    fetch(`https://api.github.com/users/${this.userSearch}/orgs`)
+      .then(response => response.json())
 
-  fetchUserRepos = () => new Promise((resolve, reject) => {
-      fetch(`https://api.github.com/users/${this.userSearch}/repos`)
-        .then(response => response.json())
-        .then(repoData => { 
-          this.user.repoData = repoData;
-          resolve();
-        })
-        .catch(error => { this.user = null; reject(error) });
-      });
+  fetchUserRepos = (user) => 
+    fetch(`https://api.github.com/users/${this.userSearch}/repos`)
+      .then(response => response.json())
 
-  apiUsage() { // Github rate limits to 60/hour. rate_limit call shouldn't count.
+  showApiUsage = () => // Github rate limits to 60/hour. rate_limit call shouldn't count.
     fetch("https://api.github.com/rate_limit")
       .then(response => response.json())
       .then(data => {
         console.log(`Remaining API calls - ${data.rate.remaining}`);
         console.log(`Reset - ${new Date(data.rate.reset*1000).toLocaleTimeString()}`);
       });
-  }
-
-  displayErrors(error) {
-    if (error.status === 403) {
-      console.log("Forbidden - probably rate limited"); return;
-    }
-    if (error.status === 404) {
-      console.log("Profile Not Found"); return;
-    }
-    console.log("Error - ", error);
-  }
-
 }
 
+function handleErrors(response) {
+  if (!response.ok) {
+    setTimeout(() => console.log("Error - ", response.message), 1000); // I just want it last in console.
+  }
+  return response;
+}
 
 
 
