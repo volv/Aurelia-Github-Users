@@ -20,15 +20,15 @@ export class GithubApp {
       })
   }
 
-  fetchUserInfo = (user) => 
+  fetchUserInfo = () => 
     fetch(`https://api.github.com/users/${this.userSearch}`)
       .then(response => response.json())
 
-  fetchUserOrgs = (user) => 
+  fetchUserOrgs = () => 
     fetch(`https://api.github.com/users/${this.userSearch}/orgs`)
       .then(response => response.json())
 
-  fetchUserRepos = (user) => 
+  fetchUserRepos = () => 
     fetch(`https://api.github.com/users/${this.userSearch}/repos`)
       .then(response => response.json())
 
