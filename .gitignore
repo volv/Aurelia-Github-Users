@@ -9,6 +9,6 @@ coverage
 test/e2e/dist
 /export
 
-#local
+# local
 .vscode
 z-ideas
