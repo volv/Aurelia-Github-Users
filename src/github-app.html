@@ -1,5 +1,4 @@
 <template>
-  <require from="./limit-to"></require>
   <div class="container">
     <section class="au-animate">
       <div class="col">
@@ -17,17 +16,19 @@
           <p><img class="img-responsive" src="${user.avatar_url}"></p>
         </div>
         <div class="col-md-9">
-          <h3 class="name"><a href="${user.html_url}">${user.login}</a></h3>
-          <!-- <p>View Profile</a></p> -->
+          <h3 class="name">${user.login}</h3>
+          <p><a href="${user.html_url}">View Profile</a></p>
           <p>Followers: ${user.followers}</p>
           <p if.bind="user.orgData">Organisations: ${user.orgData.length}</p>
           <ul>
             <li repeat.for="i of user.orgData.length"><a href="${user.orgData[i].url}">${user.orgData[i].login}</a></li>
           </ul>
+
           <p if.bind="user.repoData">Repos: ${user.repoData.length}</p>
           <ul>
-              <!-- <div repeat.for="item of items | limitTo:5">${i}</div> -->
-            <li repeat.for="i of user.repoData | limitTo:5"><a href="${user.repoData[i].html_url}">${user.repoData[i].name}</a> - ${user.repoData[i].language}</li>
+            <!-- <div repeat.for="item of items | limitTo:5">${i}</div> -->
+            <require from="./limit-to"></require>
+            <li repeat.for="items of user.repoData | limitTo:5"><a href="${items.html_url}">${items.name}</a> - ${items.language}</li>
           </ul>
 
         </div>

@@ -4,54 +4,59 @@ export class GithubApp {
 
   activate() {
     if (!this.userSearch) return;
+    this.fetchUserInfo()
+      .then(handleErrors)
+      .then((userInfo) => {
+        this.user = userInfo;
+        return this.fetchUserOrgs();
+      })
+      .then((orgData) => {
+        this.user.orgData = orgData;
+        return this.fetchUserRepos();
+      })
+      .then((repoData) => {
+        this.user.repoData = repoData;
+        this.showApiUsage();
+      })
+  }
+
+  fetchUserInfo = () => 
     fetch(`https://api.github.com/users/${this.userSearch}`)
       .then(response => response.json())
-      .then(user => { 
-        this.user = user;
-        this.fetchOrgs();
-        this.fetchRepos();
-      })
-      .catch(error => { this.user = null; this.displayErrors(error) });
-  }
 
-  fetchOrgs() {
+  fetchUserOrgs = () => 
     fetch(`https://api.github.com/users/${this.userSearch}/orgs`)
       .then(response => response.json())
-      .then(orgData => this.user.orgData = orgData)
-      .catch(error => { this.user = null; this.displayErrors(error) });
 
-    this.apiUsage(); // Keep us updated.
-  }
-
-  fetchRepos() {
+  fetchUserRepos = () => 
     fetch(`https://api.github.com/users/${this.userSearch}/repos`)
-    .then(response => response.json())
-    .then(repoData => this.user.repoData = repoData)
-    .catch(error => { this.user = null; this.displayErrors(error) });
+      .then(response => response.json())
 
-  this.apiUsage(); // Keep us updated.
-  }
-
-  apiUsage() { // Github rate limits to 60/hour
+  showApiUsage = () => // Github rate limits to 60/hour. rate_limit call shouldn't count.
     fetch("https://api.github.com/rate_limit")
       .then(response => response.json())
       .then(data => {
         console.log(`Remaining API calls - ${data.rate.remaining}`);
         console.log(`Reset - ${new Date(data.rate.reset*1000).toLocaleTimeString()}`);
       });
-  }
-
-  displayErrors(error) {
-    if (error.status === 403) {
-      console.log("Forbidden - probably rate limited"); return;
-    }
-    if (error.status === 404) {
-      console.log("Profile Not Found"); return;
-    }
-    console.log("Error - ", error);
-  }
-
 }
+
+function handleErrors(response) {
+  if (!response.ok) {
+    setTimeout(() => console.log("Error - ", response.message), 1000); // I just want it last in console.
+  }
+  return response;
+}
+
+
+
+
+
+// ```<p if.bind="user.repoData">Repos: ${user.repoData.length}</p>
+//           <ul>
+//               <!-- <div repeat.for="item of items | limitTo:5">${i}</div> -->
+//             <li repeat.for="i of user.repoData | limitTo:5"><a href="${user.repoData[i].html_url}">${user.repoData[i].name}</a> - ${user.repoData[i].language}</li>
+//           </ul>```
 
 
 
